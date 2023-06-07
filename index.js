@@ -2,17 +2,16 @@ const express = require('express');
 require('dotenv').config();
 const cors = require('cors');
 const { dbConnect, client } = require('./config/configDB');
-
-
-
-
+const morgan = require('morgan');
+const cookieParser = require('cookie-parser');
 
 const app = express();
 const port = process.env.PORT || 5170;
 // middleware
 app.use(cors());
+app.use(cookieParser());
 app.use(express.json());
-
+app.use(morgan('dev'));
 
 async function run() {
   try {
@@ -21,6 +20,21 @@ async function run() {
     const database = client.db('language-school');
     const usersCollection = database.collection('users');
     const coursesCollection = database.collection('courses');
+
+    // jwt
+    app.post('/jwt', (req, res) => {
+      const user = req.body;
+      const token = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, {
+        expiresIn: '1h',
+      });
+      // Set the cookie with the JWT token
+      res.cookie('jwt', token, {
+        httpOnly: true,
+        secure: true, // Enable this in production if using HTTPS
+      });
+
+      res.send({ token });
+    });
 
     // single course creation
     app.post('/courses', async (req, res) => {
