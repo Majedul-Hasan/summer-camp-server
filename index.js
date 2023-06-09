@@ -25,6 +25,18 @@ async function run() {
     const database = client.db('language-school');
     const usersCollection = database.collection('users');
     const coursesCollection = database.collection('courses');
+    // Warning: use verifyJWT before using verifyAdmin
+    const verifyAdmin = async (req, res, next) => {
+      const email = req.decoded.email;
+      const query = { email: email };
+      const user = await usersCollection.findOne(query);
+      if (user?.role !== 'admin') {
+        return res
+          .status(403)
+          .send({ error: true, message: 'forbidden message' });
+      }
+      next();
+    };
 
     // single course creation
     app.post('/courses', async (req, res) => {
