@@ -3,7 +3,9 @@ require('dotenv').config();
 const cors = require('cors');
 const { dbConnect, client } = require('./config/configDB');
 const morgan = require('morgan');
+
 const cookieParser = require('cookie-parser');
+const { tokenPost, verifyJWT } = require('./middleware/authMiddleware');
 
 const app = express();
 const port = process.env.PORT || 5170;
@@ -13,6 +15,9 @@ app.use(cookieParser());
 app.use(express.json());
 app.use(morgan('dev'));
 
+// jwt
+app.post('/jwt', tokenPost);
+
 async function run() {
   try {
     // Connect the client to the server	(optional starting in v4.7)
@@ -20,21 +25,6 @@ async function run() {
     const database = client.db('language-school');
     const usersCollection = database.collection('users');
     const coursesCollection = database.collection('courses');
-
-    // jwt
-    app.post('/jwt', (req, res) => {
-      const user = req.body;
-      const token = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, {
-        expiresIn: '1h',
-      });
-      // Set the cookie with the JWT token
-      res.cookie('jwt', token, {
-        httpOnly: true,
-        secure: true, // Enable this in production if using HTTPS
-      });
-
-      res.send({ token });
-    });
 
     // single course creation
     app.post('/courses', async (req, res) => {
@@ -48,7 +38,6 @@ async function run() {
       const user = req.body;
       const query = { email: user.email };
       const existingUser = await usersCollection.findOne(query);
-
       if (existingUser) {
         return res.send({ message: 'user already exists' });
       }
