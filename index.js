@@ -6,6 +6,7 @@ const morgan = require('morgan');
 
 const cookieParser = require('cookie-parser');
 const { tokenPost, verifyJWT } = require('./middleware/authMiddleware');
+const { ObjectId } = require('mongodb');
 
 const app = express();
 const port = process.env.PORT || 5170;
@@ -58,6 +59,28 @@ async function run() {
     });
 
     // admins
+    // users related apis
+    app.get('/users', verifyJWT, verifyAdmin, async (req, res) => {
+      const query = {};
+      const result = await usersCollection.find(query).toArray();
+      res.send(result);
+    });
+
+    // user make admin
+    app.patch('/users/admin/:id', async (req, res) => {
+      const id = req.params.id;
+      console.log(id);
+      const filter = { _id: new ObjectId(id) };
+      const updateDoc = {
+        $set: {
+          role: 'admin',
+        },
+      };
+      const result = await usersCollection.updateOne(filter, updateDoc);
+      res.send(result);
+    });
+
+    //admin verification route
     app.get('/users/admin/:email', verifyJWT, async (req, res) => {
       const email = req.params.email;
       const query = { email: email };
