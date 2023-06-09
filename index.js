@@ -57,6 +57,20 @@ async function run() {
       res.send(result);
     });
 
+    // admins
+    app.get('/users/admin/:email', verifyJWT, async (req, res) => {
+      const email = req.params.email;
+      const query = { email: email };
+      // console.log(email, query);
+      if (req.decoded.email !== email) {
+        res.send({ admin: false });
+      }
+      const user = await usersCollection.findOne(query);
+      // console.log(user);
+      const result = { admin: user?.role === 'admin' };
+      res.send(result);
+    });
+
     // Send a ping to confirm a successful connection
   } finally {
     // Ensures that the client will close when you finish/error
