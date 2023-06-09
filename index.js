@@ -71,7 +71,12 @@ async function run() {
       const result = await usersCollection.find(query).toArray();
       res.send(result);
     });
-
+    // users related apis
+    app.get('/users/instructors', verifyJWT, verifyAdmin, async (req, res) => {
+      const query = { role: 'instructor' };
+      const result = await usersCollection.find(query).toArray();
+      res.send(result);
+    });
     // user make admin
     app.patch('/users/admin/:id', verifyJWT, verifyAdmin, async (req, res) => {
       const id = req.params.id;
