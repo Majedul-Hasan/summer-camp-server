@@ -65,6 +65,12 @@ async function run() {
       const result = await usersCollection.find(query).toArray();
       res.send(result);
     });
+    // users related apis
+    app.get('/users/students', verifyJWT, verifyAdmin, async (req, res) => {
+      const query = { role: 'student' };
+      const result = await usersCollection.find(query).toArray();
+      res.send(result);
+    });
 
     // user make admin
     app.patch('/users/admin/:id', verifyJWT, verifyAdmin, async (req, res) => {
@@ -116,7 +122,7 @@ async function run() {
       }
       const user = await usersCollection.findOne(query);
       // console.log(user);
-      const result = { admin: user?.role === 'admin' };
+      const result = { role: user?.role };
       res.send(result);
     });
 
