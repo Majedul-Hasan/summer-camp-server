@@ -39,6 +39,13 @@ async function run() {
       next();
     };
 
+    //courses
+    app.get('/courses', async (req, res) => {
+      const query = {};
+      const result = await coursesCollection.find(query).toArray();
+      res.send(result);
+    });
+
     // single course creation
     app.post('/courses', async (req, res) => {
       const course = req.body;
@@ -58,6 +65,8 @@ async function run() {
       res.send(result);
     });
 
+    // new course
+
     // admins
     // users related apis
     app.get('/users', verifyJWT, verifyAdmin, async (req, res) => {
@@ -72,7 +81,7 @@ async function run() {
       res.send(result);
     });
     // users related apis
-    app.get('/users/instructors', verifyJWT, verifyAdmin, async (req, res) => {
+    app.get('/users/instructors', async (req, res) => {
       const query = { role: 'instructor' };
       const result = await usersCollection.find(query).toArray();
       res.send(result);
