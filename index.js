@@ -137,6 +137,24 @@ async function run() {
         //  res.status(200).send(result);
       }
     );
+    // course make active
+    app.patch(
+      '/course/active/:id',
+      verifyJWT,
+      verifyAdmin,
+      async (req, res) => {
+        const id = req.params.id;
+        console.log(id);
+        const filter = { _id: new ObjectId(id) };
+        const updateDoc = {
+          $set: {
+            status: 'active',
+          },
+        };
+        const result = await coursesCollection.updateOne(filter, updateDoc);
+        res.send(result);
+      }
+    );
 
     // user make instructor
     app.patch(
