@@ -111,6 +111,48 @@ async function run() {
       const result = await usersCollection.find(query).limit(limInt).toArray();
       res.send(result);
     });
+    // users related apis
+    // app.get('/users/instructors/:id', async (req, res) => {
+    //   const { id } = req.params;
+    //   console.log(id);
+    //   const { limit } = req.query;
+
+    //   const query = { role: 'instructor' };
+    //   const result = await usersCollection.findOne(query);
+    //   res.send(result);
+    // });
+
+    app.get('/users/instructors/:id', async (req, res) => {
+      const { id } = req.params;
+      const query = { role: 'instructor', _id: new ObjectId(id) };
+
+      // Find the instructor document
+      const instructor = await usersCollection.findOne(query);
+      if (!instructor) {
+        return res.status(404).json({ error: 'Instructor not found' });
+      }
+      // Get the course IDs associated with the instructor
+      const response = { instructor: instructor };
+      const courseIds = instructor.courses;
+      if (!courseIds) {
+        response.courses = [];
+      } else {
+        response.courses = await coursesCollection
+          .find({ _id: { $in: courseIds } })
+          .toArray();
+      }
+      // Find the course documents using the course ID
+
+      // Combine the instructor and course data in the response
+      // const response = {
+      //   instructor: instructor,
+      //   courses: courses,
+      // };
+
+      // Send the response
+      res.json(response);
+    });
+
     // user make admin
     app.patch('/users/admin/:id', verifyJWT, verifyAdmin, async (req, res) => {
       const id = req.params.id;
