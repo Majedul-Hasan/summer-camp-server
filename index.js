@@ -124,6 +124,17 @@ async function run() {
       const result = await usersCollection.updateOne(filter, updateDoc);
       res.send(result);
     });
+
+     app.get('/course/admin/pending', async (req, res) => {
+       const query = { status: 'pending' };
+
+       const result = await coursesCollection.countDocuments(query);
+       console.log(result);
+       res.send({ pending: result });
+       //  res.status(200).send(result);
+     });
+
+
     // user make admin
     app.patch(
       '/users/instructor/:id',
