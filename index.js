@@ -42,7 +42,10 @@ async function run() {
     //courses
     app.get('/courses', async (req, res) => {
       const query = {};
-      const result = await coursesCollection.find(query).toArray();
+      const result = await coursesCollection
+        .find(query)
+        .sort({ uploadAt: -1 })
+        .toArray();
       res.send(result);
     });
 
