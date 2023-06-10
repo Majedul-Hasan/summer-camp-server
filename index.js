@@ -175,6 +175,29 @@ async function run() {
       }
     );
 
+    // course make pending
+    app.patch(
+      '/course/decline/:id',
+      verifyJWT,
+      verifyAdmin,
+      async (req, res) => {
+        const feedback = req.body;
+        console.log(feedback);
+
+        const id = req.params.id;
+        console.log(id);
+        const filter = { _id: new ObjectId(id) };
+        const updateDoc = {
+          $set: {
+            status: 'denied',
+            adminFeedback: feedback.feedback,
+          },
+        };
+        const result = await coursesCollection.updateOne(filter, updateDoc);
+        res.send(result);
+      }
+    );
+
     // user make instructor
     app.patch(
       '/users/instructor/:id',
