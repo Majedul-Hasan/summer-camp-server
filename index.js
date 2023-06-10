@@ -125,21 +125,25 @@ async function run() {
       res.send(result);
     });
 
-     app.get('/course/admin/pending', async (req, res) => {
-       const query = { status: 'pending' };
+    app.get(
+      '/course/admin/pending',
+      verifyJWT,
+      verifyAdmin,
+      async (req, res) => {
+        const query = { status: 'pending' };
+        const result = await coursesCollection.countDocuments(query);
+        console.log(result);
+        res.send({ pending: result });
+        //  res.status(200).send(result);
+      }
+    );
 
-       const result = await coursesCollection.countDocuments(query);
-       console.log(result);
-       res.send({ pending: result });
-       //  res.status(200).send(result);
-     });
-
-
-    // user make admin
+    // user make instructor
     app.patch(
       '/users/instructor/:id',
       verifyJWT,
       verifyAdmin,
+
       async (req, res) => {
         const id = req.params.id;
         console.log(id);
