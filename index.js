@@ -53,11 +53,27 @@ async function run() {
     });
 
     // single course creation
-    app.post('/courses', async (req, res) => {
+    app.post('/courses', verifyJWT, async (req, res) => {
+      const email = req.decoded.email;
       const course = req.body;
-      console.log(course);
-      const result = await coursesCollection.insertOne(course);
-      res.send(result);
+      const user = await usersCollection.findOne({ email: email });
+      console.log(user);
+
+      if (user) {
+        const result = await coursesCollection.insertOne(course);
+        console.log(result);
+        if (!user.courses) {
+          user.courses = []; // Initialize 'courses' as an empty array if it doesn't exist
+        }
+        user.courses.push(result.insertedId);
+        await usersCollection.updateOne(
+          { _id: new ObjectId(user._id) },
+          { $set: user }
+        );
+        console.log(result);
+        console.log(user);
+        res.send(result);
+      }
     });
     // create user
     app.post('/users', async (req, res) => {
