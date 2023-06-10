@@ -86,10 +86,13 @@ async function run() {
       const result = await usersCollection.find(query).toArray();
       res.send(result);
     });
+
     // users related apis
     app.get('/users/instructors', async (req, res) => {
+      const { limit } = req.query;
+      const limInt = parseInt(limit) || 0;
       const query = { role: 'instructor' };
-      const result = await usersCollection.find(query).toArray();
+      const result = await usersCollection.find(query).limit(limInt).toArray();
       res.send(result);
     });
     // user make admin
