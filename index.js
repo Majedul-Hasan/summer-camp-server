@@ -41,9 +41,12 @@ async function run() {
 
     //courses
     app.get('/courses', async (req, res) => {
+      const { limit } = req.query;
+      const limInt = parseInt(limit) || 0;
       const query = {};
       const result = await coursesCollection
         .find(query)
+        .limit(limInt)
         .sort({ uploadAt: -1 })
         .toArray();
       res.send(result);
