@@ -51,7 +51,21 @@ async function run() {
         .toArray();
       res.send(result);
     });
-   
+    //courses
+    app.get('/courses/:id', async (req, res) => {
+      const { id } = req.params;
+      const query = { _id: new ObjectId(id) };
+      // Find the instructor document
+      const course = await coursesCollection.findOne(query);
+
+      if (course?.status !== 'active') {
+        return res.status(423).json({
+          error: 'The resource that is being accessed is not unlocked yet',
+        });
+      } else {
+        res.status(200).send(course);
+      }
+    });
 
     // single course creation
     app.post('/courses', verifyJWT, async (req, res) => {
