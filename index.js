@@ -138,17 +138,9 @@ async function run() {
         response.courses = [];
       } else {
         response.courses = await coursesCollection
-          .find({ _id: { $in: courseIds } })
+          .find({ _id: { $in: courseIds }, status: 'active' })
           .toArray();
       }
-      // Find the course documents using the course ID
-
-      // Combine the instructor and course data in the response
-      // const response = {
-      //   instructor: instructor,
-      //   courses: courses,
-      // };
-
       // Send the response
       res.json(response);
     });
