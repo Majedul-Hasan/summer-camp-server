@@ -43,7 +43,7 @@ async function run() {
     app.get('/courses', async (req, res) => {
       const { limit } = req.query;
       const limInt = parseInt(limit) || 0;
-      const query = {};
+      const query = { status: 'active' };
       const result = await coursesCollection
         .find(query)
         .limit(limInt)
@@ -51,6 +51,7 @@ async function run() {
         .toArray();
       res.send(result);
     });
+   
 
     // single course creation
     app.post('/courses', verifyJWT, async (req, res) => {
