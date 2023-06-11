@@ -59,12 +59,18 @@ async function run() {
       res.status(200).send(result);
     });
 
-    /*
-    //courses
-    app.get('/courses', async (req, res) => {
+    app.post('/carts', async (req, res) => {
+      const item = req.body;
+      // console.log(item);
+      const result = await cartCollection.insertOne(item);
+      res.send(result);
+    });
+
+    //courses admin
+    app.get('/admin/courses', verifyJWT, verifyAdmin, async (req, res) => {
       const { limit } = req.query;
       const limInt = parseInt(limit) || 0;
-      const query = { status: 'active' };
+      const query = {};
       const result = await coursesCollection
         .find(query)
         .limit(limInt)
@@ -72,8 +78,8 @@ async function run() {
         .toArray();
       res.send(result);
     });
-    */
-    //courses
+
+    //courses public route
     app.get('/courses', async (req, res) => {
       const { limit } = req.query;
       const limInt = parseInt(limit) || 0;
