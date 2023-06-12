@@ -63,13 +63,64 @@ async function run() {
       const payment = req.body;
       const insertResult = await paymentCollection.insertOne(payment);
 
-      const query = {
+      const deleteQuery = {
         _id: { $in: payment.cartItems.map((id) => new ObjectId(id)) },
+      };
+      console.log(deleteQuery);
+      const deleteResult = await cartCollection.deleteMany(deleteQuery);
+
+      // update
+      const courseIds = payment.courseItems.map((item) => item);
+      console.log(courseIds);
+      const updateQuery = {
+        _id: { $in: courseIds.map((id) => new ObjectId(id)) },
+      };
+      console.log(updateQuery);
+
+      const updateResult = await coursesCollection.updateMany(updateQuery, {
+        $inc: { seats: -1 },
+      });
+      console.log(updateResult);
+
+      res.send({ insertResult, deleteResult, updateResult });
+    });
+
+    /*
+
+    app.post('/payments', verifyJWT, async (req, res) => {
+      const payment = req.body;
+      const insertResult = await paymentCollection.insertOne(payment);
+      if
+
+      const query = {
+        _id: {
+          $in: payment.cartItems.map((item) => new ObjectId(item.courseId)),
+        },
       };
       const deleteResult = await cartCollection.deleteMany(query);
 
-      res.send({ insertResult, deleteResult });
+      // Update the coursesCollection
+      const courseIds = payment.cartItems.map((item) => item.courseId);
+      const updateQuery = { courseId: { $in: courseIds } };
+
+      const coursesToUpdate = await coursesCollection
+        .find(updateQuery)
+        .toArray();
+
+      const updatePromises = coursesToUpdate.map(async (course) => {
+        const decrementResult = await coursesCollection.updateOne(
+          { _id: course._id },
+          { $inc: { seats: -1 } }
+        );
+        return decrementResult;
+      });
+
+      const updateResults = await Promise.all(updatePromises);
+
+      res.send({ insertResult, deleteResult, updateResults });
     });
+    */
+
     // cart collection apis
     app.get('/carts', verifyJWT, async (req, res) => {
       const email = req.query.email;
