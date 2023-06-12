@@ -139,6 +139,44 @@ async function run() {
     });
     */
 
+    //enrolled-states
+
+     app.get('/enrolled-states',  verifyJWT, async (req, res) => {
+       const email = req.query.email;
+       function onlyUnique(value, index, array) {
+         return array.indexOf(value) === index;
+       }
+
+       if (!email) {
+         res.send([]);
+       }
+       const decodedEmail = req.decoded.email;
+       if (email !== decodedEmail) {
+         return res
+           .status(403)
+           .send({ error: true, message: 'forbidden access' });
+       }
+       const query = { email: email };
+       const paidFor = await paymentCollection
+         .find(query)
+         .project({ courseItems: 1, _id: 1 })
+         .toArray();
+
+       // courses
+       const courseIds = paidFor
+         .map((x) => x.courseItems)
+         .flat(1)
+         .filter(onlyUnique);
+       
+      
+       const courseQuery = {
+         _id: { $in: courseIds.map((id) => new ObjectId(id)) },
+       };
+        const result = await coursesCollection.find(courseQuery).toArray(); 
+
+       res.status(200).send(result);
+     });
+
     // cart collection apis
     app.get('/carts', verifyJWT, async (req, res) => {
       const email = req.query.email;
@@ -473,7 +511,10 @@ async function run() {
 run().catch(console.dir);
 
 
+app.get('enrolled-states', verifyJWT, async (req, res) => {
 
+
+})
 
 
 
@@ -491,3 +532,48 @@ app.get('/', (req, res) => {
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`);
 });
+
+
+/*
+
+ app.get('enrolled-states', verifyJWT, async (req, res) => {
+   const pipeline = [
+     {
+       $unwind: '$courseItems',
+     },
+     {
+       $addFields: {
+         courseItemId: { $toObjectId: '$courseItems' },
+       },
+     },
+     {
+       $lookup: {
+         from: 'course',
+         localField: 'courseItemId',
+         foreignField: '_id',
+         as: 'courseItemDetails',
+       },
+     },
+     {
+       $unwind: '$courseItemDetails',
+     },
+     {
+       $group: {
+         _id: '$courseItemDetails.category',
+         count: { $sum: 1 },
+         totalPrice: { $sum: '$courseItemDetails.price' },
+       },
+     },
+     {
+       $project: {
+         category: '$_id',
+         count: 1,
+         total: { $round: ['$totalPrice', 2] },
+         _id: 0,
+       },
+     },
+   ];
+   const result = await paymentCollection.aggregate(pipeline).toArray();
+   res.send(result);
+ });
+*/
