@@ -28,6 +28,20 @@ async function run() {
     const usersCollection = database.collection('users');
     const coursesCollection = database.collection('courses');
     const cartCollection = database.collection('carts');
+    const paymentCollection = database.collection('school-payments');
+
+    // Warning: use verifyJWT before using verifyAdmin
+    const verifyAdmin = async (req, res, next) => {
+      const email = req.decoded.email;
+      const query = { email: email };
+      const user = await usersCollection.findOne(query);
+      if (user?.role !== 'admin') {
+        return res
+          .status(403)
+          .send({ error: true, message: 'forbidden message' });
+      }
+      next();
+    };
 
     // create payment intent
     app.post('/create-payment-intent', verifyJWT, async (req, res) => {
@@ -44,19 +58,18 @@ async function run() {
       });
     });
 
-    // Warning: use verifyJWT before using verifyAdmin
-    const verifyAdmin = async (req, res, next) => {
-      const email = req.decoded.email;
-      const query = { email: email };
-      const user = await usersCollection.findOne(query);
-      if (user?.role !== 'admin') {
-        return res
-          .status(403)
-          .send({ error: true, message: 'forbidden message' });
-      }
-      next();
-    };
+    // payment related api
+    app.post('/payments', verifyJWT, async (req, res) => {
+      const payment = req.body;
+      const insertResult = await paymentCollection.insertOne(payment);
 
+      const query = {
+        _id: { $in: payment.cartItems.map((id) => new ObjectId(id)) },
+      };
+      const deleteResult = await cartCollection.deleteMany(query);
+
+      res.send({ insertResult, deleteResult });
+    });
     // cart collection apis
     app.get('/carts', verifyJWT, async (req, res) => {
       const email = req.query.email;
