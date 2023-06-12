@@ -348,6 +348,21 @@ async function run() {
       res.status(200).send(result);
     });
 
+    //courses
+    app.get('/my-corses/:id', verifyJWT, async (req, res) => {
+      const { id } = req.params;
+      const email = req.decoded?.email;
+      const query = { _id: new ObjectId(id) };
+      // Find the instructor document
+      const course = await coursesCollection.findOne(query);
+
+      if (course && email === course['instructorEmail']) {
+        res.status(200).send(course);
+      } else {
+        res.status(403).send({ error: true, message: 'forbidden access' });
+      }
+    });
+
     // create user
     app.post('/users', async (req, res) => {
       const user = req.body;
