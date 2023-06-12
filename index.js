@@ -85,6 +85,24 @@ async function run() {
       res.send({ insertResult, deleteResult, updateResult });
     });
 
+    // cart collection apis
+    app.get('/payment-history', verifyJWT, async (req, res) => {
+      const email = req.query.email;
+
+      if (!email) {
+        res.send([]);
+      }
+      const decodedEmail = req.decoded.email;
+      if (email !== decodedEmail) {
+        return res
+          .status(403)
+          .send({ error: true, message: 'forbidden access' });
+      }
+      const query = { email: email };
+      const result = await paymentCollection.find(query).toArray();
+      res.status(200).send(result);
+    });
+
     /*
 
     app.post('/payments', verifyJWT, async (req, res) => {
