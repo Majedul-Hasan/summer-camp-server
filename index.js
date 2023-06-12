@@ -141,41 +141,40 @@ async function run() {
 
     //enrolled-states
 
-     app.get('/enrolled-states',  verifyJWT, async (req, res) => {
-       const email = req.query.email;
-       function onlyUnique(value, index, array) {
-         return array.indexOf(value) === index;
-       }
+    app.get('/enrolled-states', verifyJWT, async (req, res) => {
+      const email = req.query.email;
+      function onlyUnique(value, index, array) {
+        return array.indexOf(value) === index;
+      }
 
-       if (!email) {
-         res.send([]);
-       }
-       const decodedEmail = req.decoded.email;
-       if (email !== decodedEmail) {
-         return res
-           .status(403)
-           .send({ error: true, message: 'forbidden access' });
-       }
-       const query = { email: email };
-       const paidFor = await paymentCollection
-         .find(query)
-         .project({ courseItems: 1, _id: 1 })
-         .toArray();
+      if (!email) {
+        res.send([]);
+      }
+      const decodedEmail = req.decoded.email;
+      if (email !== decodedEmail) {
+        return res
+          .status(403)
+          .send({ error: true, message: 'forbidden access' });
+      }
+      const query = { email: email };
+      const paidFor = await paymentCollection
+        .find(query)
+        .project({ courseItems: 1, _id: 1 })
+        .toArray();
 
-       // courses
-       const courseIds = paidFor
-         .map((x) => x.courseItems)
-         .flat(1)
-         .filter(onlyUnique);
-       
-      
-       const courseQuery = {
-         _id: { $in: courseIds.map((id) => new ObjectId(id)) },
-       };
-        const result = await coursesCollection.find(courseQuery).toArray(); 
+      // courses
+      const courseIds = paidFor
+        .map((x) => x.courseItems)
+        .flat(1)
+        .filter(onlyUnique);
 
-       res.status(200).send(result);
-     });
+      const courseQuery = {
+        _id: { $in: courseIds.map((id) => new ObjectId(id)) },
+      };
+      const result = await coursesCollection.find(courseQuery).toArray();
+
+      res.status(200).send(result);
+    });
 
     // cart collection apis
     app.get('/carts', verifyJWT, async (req, res) => {
@@ -303,6 +302,52 @@ async function run() {
         res.send(result);
       }
     });
+
+    // single course update
+    app.patch('/courses/:id', verifyJWT, async (req, res) => {
+      const id = req.params.id;
+
+      const email = req.decoded?.email;
+      const filter = { _id: new ObjectId(id) };
+      const course = await coursesCollection.findOne(filter);
+
+      const options = { upsert: false };
+      const updatedCourse = req.body;
+      if (email === course['instructorEmail']) {
+        const updateDoc = {
+          $set: {
+            ...updatedCourse,
+          },
+        };
+        const result = await coursesCollection.updateOne(
+          filter,
+          updateDoc,
+          options
+        );
+        res.send(result);
+      } else {
+        res.status(403).send({ error: true, message: 'unauthorized access' });
+      }
+    });
+
+    // courses by instructor collection apis
+    app.get('/my-corses', verifyJWT, async (req, res) => {
+      const email = req.query.email;
+
+      if (!email) {
+        res.send([]);
+      }
+      const decodedEmail = req.decoded.email;
+      if (email !== decodedEmail) {
+        return res
+          .status(403)
+          .send({ error: true, message: 'forbidden access' });
+      }
+      const query = { instructorEmail: email };
+      const result = await coursesCollection.find(query).toArray();
+      res.status(200).send(result);
+    });
+
     // create user
     app.post('/users', async (req, res) => {
       const user = req.body;
