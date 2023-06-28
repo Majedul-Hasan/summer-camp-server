@@ -16,8 +16,8 @@ const database = () =>
       family: 4, // Use IPv4, skip trying IPv6
     })
     // .connect(process.env.DATABASE_CLOUD,{})
-    .then((d) => {
-      console.log('db connected: ', d.connection.host);
+    .then((DB) => {
+      console.log('db connected: ', DB.connection.host);
     })
     .catch((err) => {
       console.error(`Error: ${err.message}`);
