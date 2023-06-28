@@ -16,6 +16,6 @@ const registerUserCtrl = async (req, res) => {
   }
 };
 
-module.exports = {
+export default {
   registerUserCtrl,
 };
