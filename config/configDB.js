@@ -1,10 +1,10 @@
 const mongoose = require('mongoose');
 
-const URI = `mongodb+srv://${process.env.DB_USERNAME}:${process.env.DB_PASS}@${process.env.DB_CLUSTER_NAME}.${process.env.DB_HOST}.mongodb.net/?retryWrites=true&w=majority`;
+const MONGO_URI = `mongodb+srv://${process.env.DB_USERNAME}:${process.env.DB_PASS}@${process.env.DB_CLUSTER_NAME}.${process.env.DB_HOST}.mongodb.net/?retryWrites=true&w=majority`;
 
 const database = () =>
   mongoose
-    .connect(URI, {
+    .connect(MONGO_URI, {
       useNewUrlParser: true,
       // useCreateIndex: true,
       //   useFindAndModify: false,
@@ -16,6 +16,15 @@ const database = () =>
       family: 4, // Use IPv4, skip trying IPv6
     })
     // .connect(process.env.DATABASE_CLOUD,{})
-    .then(() => console.log('db connected'));
+    .then((d) => {
+      console.log('db connected: ', d.connection.host);
+    })
+    .catch((err) => {
+      console.error(`Error: ${err.message}`);
+      process.exit(1);
+    });
+
+
+
 
 module.exports = database;
