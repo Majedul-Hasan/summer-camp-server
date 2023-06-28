@@ -1,20 +1,26 @@
+const asyncHandler = require('express-async-handler');
 const User = require('../models/usersModels');
 
 // create user
-const registerUserCtrl = async (req, res) => {
+const registerUserCtrl = asyncHandler(async (req, res) => {
   try {
     const { name, email, password } = req.body;
-    if (!name) return res.status(400).send('Name is required');
-    if (!password || password.length < 6) {
-      return res
-        .status(400)
-        .send('Password is required and should be min 6 characters long');
-    }
+
+    User.findOne({ email: email.toLowerCase() }, async (err, user) => {
+      if (user) throw new Error('User already exists');
+
+      const user = await User.create({
+        name,
+        email,
+        password,
+      });
+      res.json(user);
+    });
   } catch (err) {
     console.log(err);
     return res.status(400).send('Error. Try again.');
   }
-};
+});
 
 export default {
   registerUserCtrl,
