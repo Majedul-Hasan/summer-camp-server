@@ -1,7 +1,8 @@
 const express = require('express');
 require('dotenv').config();
 const cors = require('cors');
-const { dbConnect, client } = require('./config/configDB');
+const  dbConnect = require('./config/configDB');
+dbConnect()
 const morgan = require('morgan');
 
 const cookieParser = require('cookie-parser');
@@ -568,7 +569,7 @@ async function run() {
     // await client.close();
   }
 }
-run().catch(console.dir);
+// run().catch(console.dir);
 
 
 app.get('enrolled-states', verifyJWT, async (req, res) => {
