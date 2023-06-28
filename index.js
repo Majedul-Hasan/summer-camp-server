@@ -2,7 +2,8 @@ const express = require('express');
 require('dotenv').config();
 const cors = require('cors');
 const  dbConnect = require('./config/configDB');
-dbConnect()
+const userRoutes = require('./routes/UserRoutes');
+dbConnect();
 const morgan = require('morgan');
 
 const cookieParser = require('cookie-parser');
@@ -20,6 +21,9 @@ app.use(morgan('dev'));
 
 // jwt
 app.post('/jwt', tokenPost);
+app.use('/users', userRoutes);
+
+
 
 async function run() {
   try {

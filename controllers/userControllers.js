@@ -4,24 +4,26 @@ const User = require('../models/usersModels');
 // create user
 const registerUserCtrl = asyncHandler(async (req, res) => {
   try {
-    const { name, email, password } = req.body;
+    const { name, email, password, role } = req.body;
 
-    User.findOne({ email: email.toLowerCase() }, async (err, user) => {
-      if (user) throw new Error('User already exists');
+    const user = await User.findOne({ email: email.toLowerCase() }).exec();
 
-      const user = await User.create({
-        name,
-        email,
-        password,
-      });
-      res.json(user);
+    if (user) throw new Error('User already exists');
+
+    const newUser = await User.create({
+      name,
+      email,
+      password,
+      role,
     });
+
+    res.status(200).send(newUser);
   } catch (err) {
     console.log(err);
     return res.status(400).send('Error. Try again.');
   }
 });
 
-export default {
+module.exports = {
   registerUserCtrl,
 };
