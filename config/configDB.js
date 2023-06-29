@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-const MONGO_URI = `mongodb+srv://${process.env.DB_USERNAME}:${process.env.DB_PASS}@${process.env.DB_CLUSTER_NAME}.${process.env.DB_HOST}.mongodb.net/?retryWrites=true&w=majority`;
+const MONGO_URI = `mongodb+srv://${process.env.DB_USERNAME}:${process.env.DB_PASS}@${process.env.DB_CLUSTER_NAME}.${process.env.DB_HOST}.mongodb.net/${process.env.DB_NAME}?retryWrites=true&w=majority`;
 
 const database = () =>
   mongoose

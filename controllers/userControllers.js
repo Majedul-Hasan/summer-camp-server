@@ -1,5 +1,6 @@
 const asyncHandler = require('express-async-handler');
 const User = require('../models/usersModels');
+const generateToken = require('../utils/generateToken');
 
 // create user
 const registerUserCtrl = asyncHandler(async (req, res) => {
@@ -8,7 +9,7 @@ const registerUserCtrl = asyncHandler(async (req, res) => {
 
     const user = await User.findOne({ email: email.toLowerCase() }).exec();
 
-    if (user) throw new Error('User already exists');
+    if (user) res.status(400).send('User already exists');
 
     const newUser = await User.create({
       name,
@@ -17,7 +18,35 @@ const registerUserCtrl = asyncHandler(async (req, res) => {
       role,
     });
 
+    newUser.password = null;
+
     res.status(200).send(newUser);
+  } catch (err) {
+    console.log(err);
+    return res.status(400).send('Error. Try again.');
+  }
+});
+// create user
+const loginUserCtrl = asyncHandler(async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    const user = await User.findOne({ email: email.toLowerCase() }).exec();
+
+    if (!user) return res.status(400).send('No user found');
+    const match = await user.matchPassword(password);
+    if (!match) return res.status(400).send('Wrong password');
+
+    const token = generateToken({ id: user._id });
+    return res.json({
+      token,
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+      },
+    });
   } catch (err) {
     console.log(err);
     return res.status(400).send('Error. Try again.');
@@ -26,4 +55,5 @@ const registerUserCtrl = asyncHandler(async (req, res) => {
 
 module.exports = {
   registerUserCtrl,
+  loginUserCtrl,
 };
