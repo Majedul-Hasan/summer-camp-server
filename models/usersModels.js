@@ -11,6 +11,11 @@ const userSchema = new Schema(
       trim: true,
       required: true,
     },
+    address: {
+      type: String,
+      trim: true,
+      required: true,
+    },
     email: {
       type: String,
       trim: true,
@@ -23,16 +28,22 @@ const userSchema = new Schema(
       min: 6,
       max: 64,
     },
-    picture: {
+    image: {
       type: String,
       default:
         'https://images.unsplash.com/photo-1633332755192-727a05c4013d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=880&q=80',
     },
+    gender: {
+      type: String,
+
+      enum: ['male', 'female', 'other'],
+    },
     role: {
       type: [String],
-      default: ['Subscriber'],
-      enum: ['Subscriber', 'Instructor', 'Admin'],
+      default: ['subscriber'],
+      enum: ['subscriber', 'instructor', 'admin'],
     },
+    phone: String,
     stripe_account_id: String,
     stripe_seller: {},
     stripeSession: {},
