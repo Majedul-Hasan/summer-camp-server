@@ -38,14 +38,17 @@ const loginUserCtrl = asyncHandler(async (req, res) => {
     if (!match) return res.status(400).send('Wrong password');
 
     const token = generateToken({ id: user._id });
-    return res.json({
-      token,
-      user: {
-        id: user._id,
-        name: user.name,
-        email: user.email,
-        role: user.role,
-      },
+    // send token in cookie
+
+    res.cookie('token', token, {
+      httpOnly: true,
+      // secure: true, // only works on https
+    });
+    res.json({
+      id: user._id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
     });
   } catch (err) {
     console.log(err);
@@ -53,7 +56,17 @@ const loginUserCtrl = asyncHandler(async (req, res) => {
   }
 });
 
+const logout = async (req, res) => {
+  try {
+    res.clearCookie('token');
+    return res.json({ message: 'Signout success' });
+  } catch (err) {
+    console.log(err);
+  }
+};
+
 module.exports = {
   registerUserCtrl,
   loginUserCtrl,
-};
+  logout,
+}; 
