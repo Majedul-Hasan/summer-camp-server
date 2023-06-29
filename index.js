@@ -563,6 +563,7 @@ app.get('enrolled-states', verifyJWT, async (req, res) => {
 
 
 app.get('/', (req, res) => {
+  // console.log(req.cookies);
   res.sendFile(__dirname + '/file.html');
 });
 
