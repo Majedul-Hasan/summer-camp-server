@@ -36,18 +36,7 @@ async function run() {
     const paymentCollection = database.collection('school-payments');
 
     // Warning: use verifyJWT before using verifyAdmin
-    const verifyAdmin = async (req, res, next) => {
-      const email = req.decoded.email;
-      const query = { email: email };
-      const user = await usersCollection.findOne(query);
-      if (user?.role !== 'admin') {
-        return res
-          .status(403)
-          .send({ error: true, message: 'forbidden message' });
-      }
-      next();
-    };
-
+   
     // create payment intent
     app.post('/create-payment-intent', verifyJWT, async (req, res) => {
       const { price } = req.body;
