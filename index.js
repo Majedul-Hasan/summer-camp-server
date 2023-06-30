@@ -2,7 +2,8 @@ const express = require('express');
 require('dotenv').config();
 const cors = require('cors');
 const  dbConnect = require('./config/configDB');
-const userRoutes = require('./routes/UserRoutes');
+const userRoutes = require('./routes/userRoutes');
+const coursesRoutes = require('./routes/coursesRoutes');
 dbConnect();
 const morgan = require('morgan');
 
@@ -20,8 +21,9 @@ app.use(express.json());
 app.use(morgan('dev'));
 
 // jwt
-app.post('/jwt', tokenPost);
+// app.post('/jwt', tokenPost);
 app.use('/users', userRoutes);
+app.use('/courses', coursesRoutes);
 
 
 
