@@ -4,6 +4,8 @@ const cors = require('cors');
 const  dbConnect = require('./config/configDB');
 const userRoutes = require('./routes/userRoutes');
 const coursesRoutes = require('./routes/coursesRoutes');
+const instructorsRoutes = require('./routes/instructorRoutes');
+
 dbConnect();
 const morgan = require('morgan');
 
@@ -24,8 +26,7 @@ app.use(morgan('dev'));
 // app.post('/jwt', tokenPost);
 app.use('/users', userRoutes);
 app.use('/courses', coursesRoutes);
-
-
+app.use('/instructors', instructorsRoutes);
 
 async function run() {
   try {
@@ -38,7 +39,7 @@ async function run() {
     const paymentCollection = database.collection('school-payments');
 
     // Warning: use verifyJWT before using verifyAdmin
-   
+
     // create payment intent
     app.post('/create-payment-intent', verifyJWT, async (req, res) => {
       const { price } = req.body;
@@ -98,7 +99,6 @@ async function run() {
       const result = await paymentCollection.find(query).toArray();
       res.status(200).send(result);
     });
-
 
     app.get('/enrolled-states', verifyJWT, async (req, res) => {
       const email = req.query.email;
@@ -178,37 +178,6 @@ async function run() {
         .sort({ uploadAt: -1 })
         .toArray();
       res.send(result);
-    });
-
-    //courses public route
-    app.get('/courses', async (req, res) => {
-      const { limit } = req.query;
-      const limInt = parseInt(limit) || 0;
-      const query = { status: 'active' };
-      const courses = await coursesCollection
-        .find(query)
-        .limit(limInt)
-        .sort({ uploadAt: -1 })
-        .toArray();
-      // Extracting instructor emails from course objects
-      const instructorEmails = courses.map((course) => course.instructorEmail);
-      // Fetching instructor info from usersCollection
-      const instructors = await usersCollection
-        .find({ email: { $in: instructorEmails } })
-        .project({ email: 1, _id: 1 })
-        .toArray();
-      // Creating a map of instructor email to instructor info
-      const instructorMap = instructors.reduce((map, instructor) => {
-        map[instructor.email] = instructor;
-        return map;
-      }, {});
-      // Assigning instructor info to respective course objects
-      const coursesWithInstructors = courses.map((course) => {
-        const instructor = instructorMap[course.instructorEmail];
-        return { ...course, instructor };
-      });
-
-      res.send(coursesWithInstructors);
     });
 
     //courses
@@ -337,25 +306,6 @@ async function run() {
       const result = await usersCollection.find(query).toArray();
       res.send(result);
     });
-
-    // users related apis
-    app.get('/users/instructors', async (req, res) => {
-      const { limit } = req.query;
-      const limInt = parseInt(limit) || 0;
-      const query = { role: 'instructor' };
-      const result = await usersCollection.find(query).limit(limInt).toArray();
-      res.send(result);
-    });
-    // users related apis
-    // app.get('/users/instructors/:id', async (req, res) => {
-    //   const { id } = req.params;
-    //   console.log(id);
-    //   const { limit } = req.query;
-
-    //   const query = { role: 'instructor' };
-    //   const result = await usersCollection.findOne(query);
-    //   res.send(result);
-    // });
 
     app.get('/users/instructors/:id', async (req, res) => {
       const { id } = req.params;
