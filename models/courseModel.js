@@ -69,7 +69,8 @@ const coursesSchema = new Schema(
     },
     instructor: {
       type: ObjectId,
-      ref: 'User',
+      ref: 'users',
+      // ref: mongoose.model('User', schema),
       required: true,
     },
     category: String,
