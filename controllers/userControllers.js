@@ -72,10 +72,13 @@ const logout = asyncHandler(async (req, res) => {
 
 const currentUserCtrl = asyncHandler(async (req, res) => {
   const id = req.decoded.id;
+   
   try {
     console.log('id = ', id);
     const user = await User.findById(id).select('-password').exec();
     console.log('CURRENT_USER', user);
+    const token = generateToken({ id: user._id });
+
     res.json({
       user,
       token,

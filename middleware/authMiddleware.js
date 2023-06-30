@@ -5,7 +5,7 @@ const verifyJWT = (req, res, next) => {
   const authorization = req.headers.authorization;
   const getToken = req.cookies.token;
   // console.log(getToken);
-  // console.log(authorization);
+  console.log(authorization);
   if (!authorization) {
     return res
       .status(401)
