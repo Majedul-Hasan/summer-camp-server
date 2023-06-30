@@ -97,43 +97,6 @@ async function run() {
       res.status(200).send(result);
     });
 
-    /*
-
-    app.post('/payments', verifyJWT, async (req, res) => {
-      const payment = req.body;
-      const insertResult = await paymentCollection.insertOne(payment);
-      if
-
-      const query = {
-        _id: {
-          $in: payment.cartItems.map((item) => new ObjectId(item.courseId)),
-        },
-      };
-      const deleteResult = await cartCollection.deleteMany(query);
-
-      // Update the coursesCollection
-      const courseIds = payment.cartItems.map((item) => item.courseId);
-      const updateQuery = { courseId: { $in: courseIds } };
-
-      const coursesToUpdate = await coursesCollection
-        .find(updateQuery)
-        .toArray();
-
-      const updatePromises = coursesToUpdate.map(async (course) => {
-        const decrementResult = await coursesCollection.updateOne(
-          { _id: course._id },
-          { $inc: { seats: -1 } }
-        );
-        return decrementResult;
-      });
-
-      const updateResults = await Promise.all(updatePromises);
-
-      res.send({ insertResult, deleteResult, updateResults });
-    });
-    */
-
-    //enrolled-states
 
     app.get('/enrolled-states', verifyJWT, async (req, res) => {
       const email = req.query.email;

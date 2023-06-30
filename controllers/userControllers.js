@@ -48,13 +48,9 @@ const loginUserCtrl = asyncHandler(async (req, res) => {
       httpOnly: true,
       // secure: true, // only works on https
     });
+    user.password = '';
     res.json({
-      user: {
-        id: user._id,
-        name: user.name,
-        email: user.email,
-        role: user.role,
-      },
+      user,
       token,
     });
   } catch (err) {
@@ -75,12 +71,18 @@ const logout = asyncHandler(async (req, res) => {
 // current user
 
 const currentUserCtrl = asyncHandler(async (req, res) => {
+  const id = req.decoded.id;
   try {
-    const user = await User.findById(req.user._id).select('-password').exec();
+    console.log('id = ', id);
+    const user = await User.findById(id).select('-password').exec();
     console.log('CURRENT_USER', user);
-    return res.json({ ok: true });
+    res.json({
+      user,
+      token,
+    });
   } catch (err) {
     console.log(err);
+    return res.status(400).send({ msg: err.message });
   }
 });
 
